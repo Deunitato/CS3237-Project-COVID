@@ -3,9 +3,17 @@
   <head>
     <meta charset="utf-8">
     <link rel="stylesheet" href="/static/style.css">
-    <title>Flask Tutorial</title>
   </head>
   <body>
-    <img src="{{url_for('static', filename='movingshroom.gif')}}" class = "center" align="center" />
+    <div class ="mainBoxFull">
+    <img src="{{url_for('static', filename='dummyhealth.png')}}"  />
+    <div style="position:relative" width="1500" height="1000" class = "center">
+      
+      <img style="position:absolute;" width="500" height="500" src="{{url_for('static', filename='shroom.gif')}}"  />
+      {% if Skills.Slash == True %}
+      <img style="position:absolute; margin-top: 130px;"  height="400" src="{{url_for('static', filename='slash3.gif')}}"  />
+      {% endif %}
+    </div>
+  </div>
   </body>
 </html>
