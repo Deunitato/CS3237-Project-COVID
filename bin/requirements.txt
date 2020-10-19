@@ -1,2 +1,6 @@
 Flask
 Flask-APScheduler
+pybluez
+paho-mqtt
+flask_mqtt
+flask_socketio
