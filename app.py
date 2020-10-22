@@ -17,6 +17,7 @@ INTERVAL_TASK_ID = 'interval-task-id'
 
 SKILLS = {"Slash" : True, "Shield": True}
 
+health_value = 10
 
 """
 MQTT STUFF
@@ -41,11 +42,22 @@ Flask stuff
 @app.route('/', methods=['GET', 'POST'])
 def main():
     print(SKILLS)
-    return render_template('test.html')
+    return render_template('monster.html')
+
+@app.route('/death', methods=['GET', 'POST'])
+def death():
+    return render_template('death.html')
     
 @app.route('/getdata', methods=['GET', 'POST'])
 def jsondata():
     return jsonify(MQTT_DATA)
+
+@app.route('/getHealth', methods=['GET', 'POST'])
+def healthdata():
+    global health_value
+    health_value = health_value - 1
+    #health = {"health" : health_value}
+    return jsonify(health_value)
 
     
 if __name__ == "__main__":

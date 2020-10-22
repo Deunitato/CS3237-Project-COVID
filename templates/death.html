@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html lang="en" dir="ltr">
+  <head>
+      <style>
+          body, html {
+            height: 100%;
+          }
+        .bg {
+        /* The image used */
+        background-image: url("/static/win.gif");
+
+        /* Full height */
+        height: 100%;
+
+        /* Center and scale the image nicely */
+        background-position: center;
+        background-repeat: no-repeat;
+        background-size: cover;
+        }
+      </style>
+  </head>
+    <link rel="stylesheet" href="/static/style.css">
+  </head>
+  <body>
+    <br>
+    <img class = "bg" src="{{url_for('static', filename='win.gif')}}"  />
+  </body>
+</html>

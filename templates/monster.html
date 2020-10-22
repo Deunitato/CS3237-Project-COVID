@@ -1,0 +1,80 @@
+
+<!DOCTYPE html>
+<html>
+<head>
+    <link rel="stylesheet" href="/static/style.css">
+</head>
+<style>
+body {
+  background: url('static/bg1.png') no-repeat center center fixed;
+  height: 150%; 
+  /* Center and scale the image nicely */
+  background-position: center;
+  background-repeat: no-repeat;
+  background-size: 1950px 600px;
+}
+</style>
+<script src="https://code.jquery.com/jquery-3.2.1.min.js"
+          integrity="sha256-hwg4gsxgFZhOsEEamdOYGBf13FyQuiTwlAQgxVSNgt4="
+          crossorigin="anonymous">
+</script>
+<script>
+    health = 0
+    $(document).ready(function() {
+        setInterval(function(){ 
+        $.getJSON(
+          '/getHealth',
+          function(data) {
+              //data = JSON.parse(data)
+              console.log(data)
+              health = data
+              if(health == 0){
+                window.location.href = '/death';
+              }               
+          }
+        );
+        // Make Ajax Request and expect JSON-encoded data
+        $.getJSON(
+          '/getdata',
+          function(data) {
+              //document.getElementById('_id').value = _id;
+              string = data
+              data = JSON.parse(data)
+              console.log(data)
+              
+              document.getElementById("datahere").textContent = string;
+              slash_value = Math.abs(Math.round(data.gyroX))
+              console.log(slash_value)
+              if(slash_value % 2 == 0){
+                document.getElementById("slash").style.display = "none";
+              }
+              else{
+                document.getElementById("slash").style.display = "inline";
+              }
+            }
+        );
+            //update health
+            document.getElementById("health_value").textContent = health;
+      }, 1000);
+    });
+</script>
+<body>
+    <h2 id="datahere">Your data should appear here</h2>
+    <br>
+
+    <img style="float:left;" width="100" height="100" src="{{url_for('static', filename='heart1.png')}}"  />
+    <h2  style="vertical-align:top;" id = "health_value"> 1000 </h2>
+    <div style="clear: left;"/>
+    <br>
+    <div class ="mainBoxFull">
+        <div style="position:relative" width="2500" height="2000" class = "center">
+        
+        <img style="position:absolute;" width="500" height="500" src="{{url_for('static', filename='shroom.gif')}}"  />
+        <img id = "slash" style="position:absolute; margin-top: 130px;"  height="400" src="{{url_for('static', filename='slash3.gif')}}"  />
+        </div>
+    </div>
+</body>
+
+
+
+</html>

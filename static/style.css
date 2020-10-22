@@ -8,3 +8,9 @@
 .mainBoxFull {
     display: block;
 }
+
+#container{
+  text-align: center;
+  margin:2px;
+}
+
