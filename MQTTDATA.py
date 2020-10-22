@@ -30,3 +30,23 @@ class Subscriber:
 # mqtt = MQTTDATA()
 # mqtt.run()
 #print(mqtt.getData())
+
+class Publisher:
+    def __init__(self, topic, ip, port):
+        self.client = mqtt.Client()
+        self.topic = topic
+        self.ip = ip
+        self.port = port
+
+    def on_connect(self, client, userdata, flags,rc):
+        print("Connected with result code " + str(rc))
+
+    def publish(self, data):
+        print("Sending messsage")
+        self.client.publish(self.topic, data)
+
+    def run(self):
+        self.client.on_connect = self.on_connect
+        print("Connecting")
+        self.client.connect(self.ip, self.port, 60)
+        # self.client.loop_forever()
