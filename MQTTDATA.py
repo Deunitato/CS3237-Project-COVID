@@ -1,13 +1,16 @@
 import paho.mqtt.client as mqtt
 
 class Subscriber:
-    def __init__(self):
+    def __init__(self, topic, ip, port):
         self.MQTT_DATA = 1
         self.client = mqtt.Client()
+        self.topic = topic
+        self.ip = ip
+        self.port = port
 
     def on_connect(self, client, userdata, flags,rc):
         print("Connected with result code " + str(rc))
-        self.client.subscribe("test/charlotte")
+        self.client.subscribe(self.topic)
     def on_message(self, client, userdata, msg):
         self.MQTT_DATA = str(msg.payload.decode('ascii'))
         print(self.MQTT_DATA)
@@ -21,7 +24,7 @@ class Subscriber:
         self.client.on_message = self.on_message
 
         print("Connecting")
-        self.client.connect("18.140.67.252", 1883, 60)
+        self.client.connect(self.ip, self.port, 60)
         self.client.loop_forever()
 
 # mqtt = MQTTDATA()
