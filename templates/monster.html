@@ -43,19 +43,25 @@ body {
               console.log(data)
               
               document.getElementById("datahere").textContent = string;
-              slash_value = Math.abs(Math.round(data.gyroX))
-              console.log(slash_value)
-              if(slash_value % 2 == 0){
+              prediction = data.prediction
+              console.log(prediction)
+              if(prediction === 'stab'){
                 document.getElementById("slash").style.display = "none";
+                document.getElementById("stab").style.display = "inline";
+              }
+              else if (prediction == 'slash'){
+                document.getElementById("slash").style.display = "inline";
+                document.getElementById("stab").style.display = "none";
               }
               else{
-                document.getElementById("slash").style.display = "inline";
+                document.getElementById("slash").style.display = "none";
+                document.getElementById("stab").style.display = "none";
               }
             }
         );
             //update health
             document.getElementById("health_value").textContent = health;
-      }, 1000);
+      }, 100);
     });
 </script>
 <body>
@@ -71,6 +77,7 @@ body {
         
         <img style="position:absolute;" width="500" height="500" src="{{url_for('static', filename='shroom.gif')}}"  />
         <img id = "slash" style="position:absolute; margin-top: 130px;"  height="400" src="{{url_for('static', filename='slash3.gif')}}"  />
+        <img id = "stab" style="position:absolute; margin-top: 130px;"  height="400" src="{{url_for('static', filename='stab.gif')}}"  />
         </div>
     </div>
 </body>

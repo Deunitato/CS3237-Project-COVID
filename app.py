@@ -17,12 +17,12 @@ INTERVAL_TASK_ID = 'interval-task-id'
 
 SKILLS = {"Slash" : True, "Shield": True}
 
-health_value = 10
+health_value = 100
 
 """
 MQTT STUFF
 """
-mqtt = Subscriber("test/charlotte", "18.140.67.252", 1883)
+mqtt = Subscriber("test/moves", "18.140.67.252", 1883)
 
 scheduler.add_job(id="data_id", func=mqtt.run, trigger='date')
 MQTT_DATA = {}
