@@ -11,9 +11,10 @@ class Subscriber:
     def on_connect(self, client, userdata, flags,rc):
         print("Connected with result code " + str(rc))
         self.client.subscribe(self.topic)
+
     def on_message(self, client, userdata, msg):
         self.MQTT_DATA = str(msg.payload.decode('ascii'))
-        print(self.MQTT_DATA)
+        #print(self.MQTT_DATA)
         #print(msg.topic + " " + str(msg.payload.decode('ascii')))
 
     def getData(self):

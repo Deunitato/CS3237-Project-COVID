@@ -4,6 +4,7 @@ from flask_mqtt import Mqtt
 from flask_socketio import SocketIO
 import multiprocessing
 import random
+import sys
 import paho.mqtt.client as mqtt
 from MQTTDATA import Subscriber
 
@@ -17,7 +18,6 @@ INTERVAL_TASK_ID = 'interval-task-id'
 
 SKILLS = {"Slash" : True, "Shield": True}
 
-health_value = 100
 
 """
 MQTT STUFF
@@ -52,16 +52,12 @@ def death():
 def jsondata():
     return jsonify(MQTT_DATA)
 
-@app.route('/getHealth', methods=['GET', 'POST'])
-def healthdata():
-    global health_value
-    health_value = health_value - 1
-    #health = {"health" : health_value}
-    return jsonify(health_value)
-
     
 if __name__ == "__main__":
     #socketio.run(app, host='localhost', port=5000, use_reloader=True, debug=True)
-    app.run(debug=True)
-    #sched.shutdown(wait=True)
+    try:
+        app.run(debug=True)
+    except KeyboardInterrupt:
+        scheduler.shutdown(wait=True)
+        sys.exit()
 
