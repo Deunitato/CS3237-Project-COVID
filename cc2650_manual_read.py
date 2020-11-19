@@ -13,9 +13,13 @@ import datetime
 import platform
 import struct
 import time
+import json
 
 from bleak import BleakClient
+from MQTTDATA import Publisher
+import Discover as discover
 
+mqtt_pub = Publisher("test/moves", "18.140.67.252", 1883, "charlotte", "charlotteiscool")
 
 class Service:
     """
@@ -99,8 +103,12 @@ class MovementSensorMPU9250(Sensor):
 
     def callback(self, sender: int, data: bytearray):
         unpacked_data = struct.unpack("<hhhhhhhhh", data)
+        dataDict = {}
         for cb in self.sub_callbacks:
-            cb(unpacked_data)
+            value = cb(unpacked_data)
+            dataDict.update(value)
+        print("[MovementSensor] Final dict:", dataDict)
+        mqtt_pub.publish(json.dumps(dataDict))
 
 
 class AccelerometerSensorMovementSensorMPU9250(MovementSensorMPU9250SubService):
@@ -112,7 +120,10 @@ class AccelerometerSensorMovementSensorMPU9250(MovementSensorMPU9250SubService):
     def cb_sensor(self, data):
         '''Returns (x_accel, y_accel, z_accel) in units of g'''
         rawVals = data[3:6]
-        print("[MovementSensor] Accelerometer:", tuple([ v*self.scale for v in rawVals ]))
+        valueTup = tuple([ v*self.scale for v in rawVals ])
+        dictValue = {"accelX" : valueTup[0] , "accelY": valueTup[1], "accelZ": valueTup[2]}
+        #print("[MovementSensor] Accelerometer:", dictValue)
+        return dictValue
 
 
 class GyroscopeSensorMovementSensorMPU9250(MovementSensorMPU9250SubService):
@@ -124,7 +135,10 @@ class GyroscopeSensorMovementSensorMPU9250(MovementSensorMPU9250SubService):
     def cb_sensor(self, data):
         '''Returns (x_gyro, y_gyro, z_gyro) in units of degrees/sec'''
         rawVals = data[0:3]
-        print("[MovementSensor] Gyroscope:", tuple([ v*self.scale for v in rawVals ]))
+        valueTup = tuple([ v*self.scale for v in rawVals ])
+        dictValue = {"gyroX" : valueTup[0] , "gyroY": valueTup[1], "gyroZ": valueTup[2]}
+        #print("[MovementSensor] Gyroscope:", dictValue)
+        return dictValue
 
 
 
@@ -157,13 +171,21 @@ if __name__ == "__main__":
     """
 
     import os
+    import sys
 
     os.environ["PYTHONASYNCIODEBUG"] = str(1)
+    discover.main()
+    add = discover.getSensorAdd()
+    if add == "00":
+        print("ERROR: Cannot find device!")
+        sys.exit()
+    print("DEVICE FOUND: " + add + "\n")
     address = (
-        "CC:78:AB:7F:1E:02"
+        add
         if platform.system() != "Darwin"
         else "6FFBA6AE-0802-4D92-B1CD-041BE4B4FEB9"
     )
+    mqtt_pub.run()
     loop = asyncio.get_event_loop()
     loop.run_until_complete(run(address))
     loop.run_forever()

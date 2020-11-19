@@ -22,7 +22,7 @@ SKILLS = {"Slash" : True, "Shield": True}
 """
 MQTT STUFF
 """
-mqtt = Subscriber("test/moves", "18.140.67.252", 1883)
+mqtt = Subscriber("test/moves", "18.140.67.252", 1883,"charlotte", "charlotteiscool")
 
 scheduler.add_job(id="data_id", func=mqtt.run, trigger='date')
 MQTT_DATA = {}

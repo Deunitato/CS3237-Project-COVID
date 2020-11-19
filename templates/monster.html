@@ -20,6 +20,8 @@ body {
 </script>
 <script>
     health = 1000
+    prediction = "stable"
+    
     $(document).ready(function() {
         setInterval(function(){ 
         // Make Ajax Request and expect JSON-encoded data
@@ -37,17 +39,16 @@ body {
               if(prediction === 'stab'){
                 document.getElementById("slash").style.display = "none";
                 document.getElementById("stab").style.display = "inline";
-                health = health - 20
+                health = health - 10
               }
-              else if (prediction == 'slash'){
+              else if (prediction === 'slash'){
                 document.getElementById("slash").style.display = "inline";
                 document.getElementById("stab").style.display = "none";
-                health = health - 10;
+                health = health - 5;
               }
               else{
                 document.getElementById("slash").style.display = "none";
                 document.getElementById("stab").style.display = "none";
-                health = health - 1;
               }
             }
         );
