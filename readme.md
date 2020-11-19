@@ -1,7 +1,7 @@
 # CS3237 Project Covid
 Members: 
 - Uriel
-- Tian Heng
+- Tian Hang
 - Charlotte
 - Joshua Wee
 
