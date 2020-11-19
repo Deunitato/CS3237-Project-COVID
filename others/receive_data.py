@@ -5,7 +5,7 @@ import time
 import traceback
 
 file_number = 0
-file_name   = 'demo/char_stab.json'
+file_name   = 'char_stab.json'
 #file_name_number = file_name.format(file_number)
 f = open(file_name, "a")
 
@@ -31,7 +31,7 @@ def on_message(client, userdata, msg):
             file_name_number = file_name.format(file_number)
             f = open(file_name_number, "a")
         '''
-        data['time'] = int(round(time.time()*1000))
+        data['time'] = int(round(time.time()*1000)%10000000)
         print(data)
         f.write(json.dumps(data))
         f.write("\n")

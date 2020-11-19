@@ -14,13 +14,17 @@ import platform
 import struct
 import time
 import json
+import numpy as np
 
+from tensorflow import keras
 from bleak import BleakClient
 from MQTTDATA import Publisher
 import Discover as discover
 
+model2 = keras.models.load_model('1DCNN-test/modelTest')
 mqtt_pub = Publisher("test/moves", "18.140.67.252", 1883, "charlotte", "charlotteiscool")
 
+reading = np.zeros((1,20,6))
 class Service:
     """
     Here is a good documentation about the concepts in ble;
@@ -102,13 +106,23 @@ class MovementSensorMPU9250(Sensor):
         await client.start_notify(self.data_uuid, self.callback)
 
     def callback(self, sender: int, data: bytearray):
+        global model2,reading
+        resultLabel = ["rest","slashslashslashslashslashslashslashslashslashslashslash","stabstabstabstabstabstab"]
         unpacked_data = struct.unpack("<hhhhhhhhh", data)
         dataDict = {}
         for cb in self.sub_callbacks:
             value = cb(unpacked_data)
             dataDict.update(value)
-        print("[MovementSensor] Final dict:", dataDict)
-        mqtt_pub.publish(json.dumps(dataDict))
+        #print("[MovementSensor] Final dict:", dataDict)
+        rowData = np.array([float(dataDict["accelX"]),float(dataDict["accelY"]),
+            float(dataDict["accelZ"]),float(dataDict["gyroX"]),
+            float(dataDict["gyroY"]),float(dataDict["gyroZ"])])
+        reading = np.delete(reading,0,1)
+        reading = np.hstack((reading,[[rowData]]))
+        result = model2.predict(reading)
+        y= np.argmax(result,axis=1)
+        print(resultLabel[int(y)])
+        #mqtt_pub.publish(json.dumps(dataDict))
 
 
 class AccelerometerSensorMovementSensorMPU9250(MovementSensorMPU9250SubService):
@@ -161,7 +175,7 @@ async def run(address):
             # set according to your period in the sensors; otherwise sensor will return same value for all the readings
             # till the sensor refreshes as defined in the period
             await asyncio.sleep(0.1)  # slightly less than 100ms to accommodate time to print results
-            print("Tick Tock")
+            #print("Tick Tock")
 
 
 if __name__ == "__main__":
