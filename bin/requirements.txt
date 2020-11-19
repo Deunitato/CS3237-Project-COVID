@@ -3,3 +3,5 @@ Flask-APScheduler
 paho-mqtt
 flask_mqtt
 flask_socketio
+tensorflow
+numpy
