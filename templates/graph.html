@@ -2,16 +2,81 @@
 <script type="text/javascript" src="//cdnjs.cloudflare.com/ajax/libs/socket.io/1.3.6/socket.io.min.js"></script>
 <script type="text/javascript" charset="utf-8">
   $(document).ready(function() {
-    var socket = io.connect('http://' + document.domain + ':' + location.port);
-
-    // listen for mqtt_message events
-    // when a new message is received, log and append the data to the page
-    socket.on('mqtt_message', function(data) {
-      console.log(data);
-      var text = '(' + data['topic'] + ' qos: ' + data['qos'] + ') ' + data['payload'];
-      $('#subscribe_messages').append(text + '<br><br>');
-    })
+    setInterval(function(){ 
+        // Make Ajax Request and expect JSON-encoded data
+        $.getJSON(
+          '/getdata',
+          function(data) {
+              //document.getElementById('_id').value = _id;
+              string = data
+              data = JSON.parse(data)
+              console.log(data)
+              document.getElementById("datahere").textContent = string;
+              if("player" in data){
+                prediction = data.prediction
+                player = data.player
+                console.log(player)
+                document.getElementById("predict").textContent = prediction;
+                document.getElementById("player").textContent = player;
+                key = player + "_" + prediction
+                console.log(key)
+                document.getElementById(key).innerHTML = parseInt(document.getElementById(key).innerHTML, 10) + 1;
+              }
+              console.log(prediction)
+            }
+        );
+            //update health
+            
+      }, 100);
   });
 </script>
+<style>
+  table {
+  border: 1px solid black;
+  width: fit-content;
+}
+th, td {
+  border: 1px solid black;
+  width: fit-content;
+  padding: 15px;
+}
+</style>
 
-<div id="subscribe_messages"></div>
+<body>
+  <h2 id="datahere">Your data should appear here</h2>
+  <br>
+  <br>
+  <h2 id="player">Your data should appear here</h2>
+  <h2 id="predict">Your data should appear here</h2>
+
+  <table>
+    <th>Player</th>
+    <th>Stable</th>
+    <th>Stab</th>
+    <th>Slash</th>
+    <th>Shield</th>
+    <th>Buff</th>
+    <th>Magic</th>
+    <th>Surrender</th>
+    <tr id = "1">
+      <td>P1</td>
+      <td id = "1_stable">0</td>
+      <td id = "1_stab">0</td>
+      <td id = "1_slash">0</td>
+      <td id = "1_shield">0</td>
+      <td id = "1_buff">0</td>
+      <td id = "1_magic">0</td>
+      <td id = "1_surrender">0</td>
+    </tr>
+    <tr id = "2">
+      <td>P2</td>
+      <td id = "2_stable">0</td>
+      <td id = "2_stab">0</td>
+      <td id = "2_slash">0</td>
+      <td id = "2_shield">0</td>
+      <td id = "2_buff">0</td>
+      <td id = "2_magic">0</td>
+      <td id = "2_surrender">0</td>
+    </tr>
+  </table>
+</body>
