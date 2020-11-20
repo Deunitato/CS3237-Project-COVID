@@ -16,14 +16,12 @@ import time
 import json
 import numpy as np
 
-from tensorflow import keras
+#from tensorflow import keras
 from bleak import BleakClient
 from MQTTDATA import Publisher
 import Discover as discover
 
-MAC_DICTIONARY = {"CC:78:AB:7F:1E:02": 1, "F0:F8:F2:86:BD:80" : 2}
-
-model2 = keras.models.load_model('1DCNN-test/modelTest')
+#model2 = keras.models.load_model('./1DCNN-test/modelTest')
 mqtt_pub = Publisher("test/moves", "18.140.67.252", 1883, "charlotte", "charlotteiscool")
 
 reading = np.zeros((1,20,6))
@@ -88,12 +86,11 @@ class MovementSensorMPU9250(Sensor):
     ACCEL_RANGE_8G  = 2 << 8
     ACCEL_RANGE_16G = 3 << 8
 
-    def __init__(self, MAC_ADDRESS):
+    def __init__(self):
         super().__init__()
         self.data_uuid = "f000aa81-0451-4000-b000-000000000000"
         self.ctrl_uuid = "f000aa82-0451-4000-b000-000000000000"
         self.ctrlBits = 0
-        self.MAC_ADDRESS = MAC_ADDRESS
 
         self.sub_callbacks = []
 
@@ -109,6 +106,14 @@ class MovementSensorMPU9250(Sensor):
         await client.start_notify(self.data_uuid, self.callback)
 
     def callback(self, sender: int, data: bytearray):
+
+        unpacked_data = struct.unpack("<hhhhhhhhh", data)
+        dataDict = {}
+        for cb in self.sub_callbacks:
+            value = cb(unpacked_data)
+            dataDict.update(value)
+        print("[MovementSensor] Final dict:", dataDict)
+        '''
         global model2,reading
         resultLabel = ["rest","slashslashslashslashslashslashslashslashslashslashslash","stabstabstabstabstabstab"]
         unpacked_data = struct.unpack("<hhhhhhhhh", data)
@@ -124,11 +129,9 @@ class MovementSensorMPU9250(Sensor):
         reading = np.hstack((reading,[[rowData]]))
         result = model2.predict(reading)
         y= np.argmax(result,axis=1)
-        #print(resultLabel[int(y)])
+        print(resultLabel[int(y)])
+        '''
         #mqtt_pub.publish(json.dumps(dataDict))
-        msgDict = {"player": MAC_DICTIONARY[self.MAC_ADDRESS], "move": resultLabel[int(y)]}
-        print(msgDict)
-        mqtt_pub.publish(json.dumps(msgDict))
 
 
 class AccelerometerSensorMovementSensorMPU9250(MovementSensorMPU9250SubService):
@@ -163,18 +166,31 @@ class GyroscopeSensorMovementSensorMPU9250(MovementSensorMPU9250SubService):
 
 
 async def run(address):
-    async with BleakClient(address) as client:
+    async with BleakClient(address[0]) as client:
+        print("Connecting to:", address[0])
         x = await client.is_connected()
         print("Connected: {0}".format(x))
 
         acc_sensor = AccelerometerSensorMovementSensorMPU9250()
         gyro_sensor = GyroscopeSensorMovementSensorMPU9250()
 
-        movement_sensor = MovementSensorMPU9250(address)
+        movement_sensor = MovementSensorMPU9250()
         movement_sensor.register(acc_sensor)
         movement_sensor.register(gyro_sensor)
         await movement_sensor.start_listener(client)
 
+        if len(address) >= 2:
+            acc_sensor2 = AccelerometerSensorMovementSensorMPU9250()
+            gyro_sensor2 = GyroscopeSensorMovementSensorMPU9250()
+
+            movement_sensor2 = MovementSensorMPU9250()
+            movement_sensor2.register(acc_sensor2)
+            movement_sensor2.register(gyro_sensor2)
+            client2 = BleakClient(address[1])
+            print("Connecting to:", address[1])
+            x2 = await client.is_connected()
+            print("Connected: {0}".format(x2))
+            await movement_sensor2.start_listener(client2)
 
 
         while True:
@@ -182,6 +198,7 @@ async def run(address):
             # till the sensor refreshes as defined in the period
             await asyncio.sleep(0.1)  # slightly less than 100ms to accommodate time to print results
             #print("Tick Tock")
+            
 
 
 if __name__ == "__main__":
@@ -196,10 +213,10 @@ if __name__ == "__main__":
     os.environ["PYTHONASYNCIODEBUG"] = str(1)
     discover.main()
     add = discover.getSensorAdd()
-    if add == "00":
+    if add == []:
         print("ERROR: Cannot find device!")
         sys.exit()
-    print("DEVICE FOUND: " + add + "\n")
+    print("DEVICE FOUND: " , add , "\n")
     address = (
         add
         if platform.system() != "Darwin"
