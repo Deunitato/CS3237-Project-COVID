@@ -24,7 +24,7 @@ import Discover as discover
 MAC_DICTIONARY = {"CC:78:AB:7F:1E:02": 1, "F0:F8:F2:86:BD:80" : 2}
 
 model2 = keras.models.load_model('1DCNN-test/modelTest')
-mqtt_pub = Publisher("test/moves", "18.140.67.252", 1883, "charlotte", "charlotteiscool")
+mqtt_pub = Publisher("data/moves", "18.140.67.252", 1883, "charlotte", "charlotteiscool")
 
 reading = np.zeros((1,20,6))
 class Service:
@@ -110,7 +110,7 @@ class MovementSensorMPU9250(Sensor):
 
     def callback(self, sender: int, data: bytearray):
         global model2,reading
-        resultLabel = ["rest","slashslashslashslashslashslashslashslashslashslashslash","stabstabstabstabstabstab"]
+        resultLabel = ["stable","slash","stab"]
         unpacked_data = struct.unpack("<hhhhhhhhh", data)
         dataDict = {}
         for cb in self.sub_callbacks:
@@ -126,7 +126,7 @@ class MovementSensorMPU9250(Sensor):
         y= np.argmax(result,axis=1)
         #print(resultLabel[int(y)])
         #mqtt_pub.publish(json.dumps(dataDict))
-        msgDict = {"player": MAC_DICTIONARY[self.MAC_ADDRESS], "move": resultLabel[int(y)]}
+        msgDict = {"player": MAC_DICTIONARY[self.MAC_ADDRESS], "prediction": resultLabel[int(y)]}
         print(msgDict)
         mqtt_pub.publish(json.dumps(msgDict))
 

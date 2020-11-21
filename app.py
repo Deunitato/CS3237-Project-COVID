@@ -29,7 +29,7 @@ MQTT_DATA = {}
 def getData():
     global MQTT_DATA
     MQTT_DATA = mqtt.getData()
-scheduler.add_job(id="collect_data", func=getData, trigger='interval', seconds=2)
+scheduler.add_job(id="collect_data", func=getData, trigger='interval', seconds=0.1)
 
 
 
@@ -56,7 +56,7 @@ def jsondata():
     default = '{"prediction": "stable"}'
     print(default)
     
-    if("stable" not in MQTT_DATA and MQTT_DATA == prevData and counter < 4):
+    if("stable" not in MQTT_DATA and MQTT_DATA == prevData and counter < 6):
         counter = counter + 1
         return jsonify(default)
     prevData = MQTT_DATA
